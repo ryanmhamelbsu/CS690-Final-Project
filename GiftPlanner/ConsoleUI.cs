@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 
 namespace GiftPlanner;
 
@@ -46,7 +47,7 @@ public class ConsoleUI
         } while (command != "4");
     }
 
-    // Code to display the Manage People menu (FR1)
+    // Code to display the Manage People menu
     private void ManagePeopleMenu()
     {
         string choice;
@@ -54,7 +55,7 @@ public class ConsoleUI
         do
         {
             Console.WriteLine("\n--- Manage People ---");
-            Console.WriteLine("1) Add Person (FR1)");
+            Console.WriteLine("1) Add Person");
             Console.WriteLine("2) List People");
             Console.WriteLine("3) Cancel");
             Console.Write("Select an option: ");
@@ -73,7 +74,7 @@ public class ConsoleUI
         } while (choice != "3");
     }
 
-    // Code to add a person based on user input (FR1)
+    // Code to add a person based on user input
     private void AddPersonFlow()
     {
         Console.Write("\nEnter person name: ");
@@ -81,7 +82,14 @@ public class ConsoleUI
 
         if (string.IsNullOrWhiteSpace(name))
         {
-            Console.WriteLine("Error: Name cannot be blank.");
+            Console.WriteLine("\nError: Name cannot be blank.\n");
+            return;
+        }
+
+        // Reject names containing numbers
+        if (name.Any(char.IsDigit))
+        {
+            Console.WriteLine("\nError: Name cannot contain numbers.\n");
             return;
         }
 
@@ -90,7 +98,7 @@ public class ConsoleUI
         var person = new Person(newId, name.Trim());
         dataManager.AddPerson(person);
 
-        Console.WriteLine("Person added successfully!");
+        Console.WriteLine("\nPerson added successfully!\n");
     }
 
     // Code to list all saved people
@@ -110,7 +118,7 @@ public class ConsoleUI
         }
     }
 
-    // Code to display the Manage Gift Ideas menu (FR3)
+    // Code to display the Manage Gift Ideas menu
     private void ManageGiftIdeasMenu()
     {
         string choice;
@@ -118,7 +126,7 @@ public class ConsoleUI
         do
         {
             Console.WriteLine("\n--- Manage Gift Ideas ---");
-            Console.WriteLine("1) Add Gift Idea (FR3)");
+            Console.WriteLine("1) Add Gift Idea");
             Console.WriteLine("2) View Gift Ideas");
             Console.WriteLine("3) Cancel");
             Console.Write("Select an option: ");
@@ -137,12 +145,12 @@ public class ConsoleUI
         } while (choice != "3");
     }
 
-    // Code to add a gift idea linked to a selected person (FR3)
+    // Code to add a gift idea linked to a selected person
     private void AddGiftIdeaFlow()
     {
         if (dataManager.People.Count == 0)
         {
-            Console.WriteLine("\nNo people available. Add a person first.");
+            Console.WriteLine("\nError: No people available. Add a person first.\n");
             return;
         }
 
@@ -157,7 +165,7 @@ public class ConsoleUI
 
         if (string.IsNullOrWhiteSpace(description))
         {
-            Console.WriteLine("Error: Description cannot be blank.");
+            Console.WriteLine("\nError: Description cannot be blank.\n");
             return;
         }
 
@@ -165,11 +173,11 @@ public class ConsoleUI
 
         if (giftIdea != null)
         {
-            Console.WriteLine($"Gift idea added for {selectedPerson.Name}!");
+            Console.WriteLine($"\nGift idea added for {selectedPerson.Name}!\n");
         }
         else
         {
-            Console.WriteLine("Error adding gift idea.");
+            Console.WriteLine("\nError: Unable to add gift idea.\n");
         }
     }
 
@@ -178,7 +186,7 @@ public class ConsoleUI
     {
         if (dataManager.People.Count == 0)
         {
-            Console.WriteLine("\nNo people available. Add a person first.");
+            Console.WriteLine("\nError: No people available. Add a person first.\n");
             return;
         }
 
@@ -202,7 +210,7 @@ public class ConsoleUI
         }
     }
 
-    // Code to display the Track Purchases menu (FR5)
+    // Code to display the Track Purchases menu
     private void TrackPurchasesMenu()
     {
         string choice;
@@ -210,7 +218,7 @@ public class ConsoleUI
         do
         {
             Console.WriteLine("\n--- Track Purchases ---");
-            Console.WriteLine("1) Record Purchase (FR5)");
+            Console.WriteLine("1) Record Purchase");
             Console.WriteLine("2) View Purchases");
             Console.WriteLine("3) Cancel");
             Console.Write("Select an option: ");
@@ -229,12 +237,12 @@ public class ConsoleUI
         } while (choice != "3");
     }
 
-    // Code to record a purchase amount for a selected person (FR5)
+    // Code to record a purchase amount for a selected person
     private void RecordPurchaseFlow()
     {
         if (dataManager.People.Count == 0)
         {
-            Console.WriteLine("\nNo people available. Add a person first.");
+            Console.WriteLine("\nError: No people available. Add a person first.\n");
             return;
         }
 
@@ -244,18 +252,18 @@ public class ConsoleUI
             return; // Cancel
         }
 
-        Console.Write("Enter purchase amount (example: 25.99): ");
+        Console.Write("Enter purchase amount (example: $25.99): $");
         string input = Console.ReadLine() ?? "";
 
         if (!decimal.TryParse(input, out decimal amount))
         {
-            Console.WriteLine("Error: Please enter a valid number.");
+            Console.WriteLine("\nError: Please enter a valid number.\n");
             return;
         }
 
         if (amount <= 0)
         {
-            Console.WriteLine("Error: Amount must be greater than 0.");
+            Console.WriteLine("\nError: Amount must be greater than 0.\n");
             return;
         }
 
@@ -263,11 +271,11 @@ public class ConsoleUI
 
         if (purchase != null)
         {
-            Console.WriteLine($"Purchase recorded for {selectedPerson.Name}: ${amount}");
+            Console.WriteLine($"\nPurchase recorded for {selectedPerson.Name}: ${amount}\n");
         }
         else
         {
-            Console.WriteLine("Error recording purchase.");
+            Console.WriteLine("\nError: Unable to record purchase.\n");
         }
     }
 
@@ -276,7 +284,7 @@ public class ConsoleUI
     {
         if (dataManager.People.Count == 0)
         {
-            Console.WriteLine("\nNo people available. Add a person first.");
+            Console.WriteLine("\nError: No people available. Add a person first.\n");
             return;
         }
 
@@ -321,7 +329,7 @@ public class ConsoleUI
 
         if (!int.TryParse(Console.ReadLine(), out int choice))
         {
-            Console.WriteLine("Invalid selection.");
+            Console.WriteLine("\nError: Invalid selection.\n");
             return null;
         }
 
@@ -332,7 +340,7 @@ public class ConsoleUI
 
         if (choice < 1 || choice > dataManager.People.Count)
         {
-            Console.WriteLine("Invalid selection.");
+            Console.WriteLine("\nError: Invalid selection.\n");
             return null;
         }
 
