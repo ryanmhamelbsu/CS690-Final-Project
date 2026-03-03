@@ -1,0 +1,15 @@
+/workspaces/CS690-Final-Project/GiftPlanner/bin/Debug/net10.0/GiftPlanner
+/workspaces/CS690-Final-Project/GiftPlanner/bin/Debug/net10.0/GiftPlanner.deps.json
+/workspaces/CS690-Final-Project/GiftPlanner/bin/Debug/net10.0/GiftPlanner.runtimeconfig.json
+/workspaces/CS690-Final-Project/GiftPlanner/bin/Debug/net10.0/GiftPlanner.dll
+/workspaces/CS690-Final-Project/GiftPlanner/bin/Debug/net10.0/GiftPlanner.pdb
+/workspaces/CS690-Final-Project/GiftPlanner/obj/Debug/net10.0/GiftPlanner.GeneratedMSBuildEditorConfig.editorconfig
+/workspaces/CS690-Final-Project/GiftPlanner/obj/Debug/net10.0/GiftPlanner.AssemblyInfoInputs.cache
+/workspaces/CS690-Final-Project/GiftPlanner/obj/Debug/net10.0/GiftPlanner.AssemblyInfo.cs
+/workspaces/CS690-Final-Project/GiftPlanner/obj/Debug/net10.0/GiftPlanner.csproj.CoreCompileInputs.cache
+/workspaces/CS690-Final-Project/GiftPlanner/obj/Debug/net10.0/GiftPlanner.sourcelink.json
+/workspaces/CS690-Final-Project/GiftPlanner/obj/Debug/net10.0/GiftPlanner.dll
+/workspaces/CS690-Final-Project/GiftPlanner/obj/Debug/net10.0/refint/GiftPlanner.dll
+/workspaces/CS690-Final-Project/GiftPlanner/obj/Debug/net10.0/GiftPlanner.pdb
+/workspaces/CS690-Final-Project/GiftPlanner/obj/Debug/net10.0/GiftPlanner.genruntimeconfig.cache
+/workspaces/CS690-Final-Project/GiftPlanner/obj/Debug/net10.0/ref/GiftPlanner.dll
