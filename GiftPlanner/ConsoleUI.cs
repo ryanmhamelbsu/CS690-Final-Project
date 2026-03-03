@@ -32,19 +32,16 @@ public class ConsoleUI
             }
             else if (command == "2")
             {
-                ManageGiftIdeasFlow();
+                ManageGiftIdeasMenu();
             }
             else if (command == "3")
             {
-                TrackPurchasesFlow();
+                TrackPurchasesMenu();
             }
 
         } while (command != "4");
     }
 
-    // --------------------
-    // Manage People (FR1)
-    // --------------------
     private void ManagePeopleMenu()
     {
         string choice;
@@ -106,10 +103,33 @@ public class ConsoleUI
         }
     }
 
-    // --------------------
-    // Manage Gift Ideas (FR3)
-    // --------------------
-    private void ManageGiftIdeasFlow()
+    private void ManageGiftIdeasMenu()
+    {
+        string choice;
+
+        do
+        {
+            Console.WriteLine("\n--- Manage Gift Ideas ---");
+            Console.WriteLine("1) Add Gift Idea (FR3)");
+            Console.WriteLine("2) View Gift Ideas");
+            Console.WriteLine("3) Cancel");
+            Console.Write("Select an option: ");
+
+            choice = Console.ReadLine() ?? "";
+
+            if (choice == "1")
+            {
+                AddGiftIdeaFlow();
+            }
+            else if (choice == "2")
+            {
+                ViewGiftIdeasFlow();
+            }
+
+        } while (choice != "3");
+    }
+
+    private void AddGiftIdeaFlow()
     {
         if (dataManager.People.Count == 0)
         {
@@ -117,7 +137,6 @@ public class ConsoleUI
             return;
         }
 
-        Console.WriteLine("\n--- Manage Gift Ideas ---");
         var selectedPerson = SelectPersonWithCancel();
         if (selectedPerson == null)
         {
@@ -145,10 +164,7 @@ public class ConsoleUI
         }
     }
 
-    // --------------------
-    // Track Purchases (FR5)
-    // --------------------
-    private void TrackPurchasesFlow()
+    private void ViewGiftIdeasFlow()
     {
         if (dataManager.People.Count == 0)
         {
@@ -156,7 +172,60 @@ public class ConsoleUI
             return;
         }
 
-        Console.WriteLine("\n--- Track Purchases ---");
+        var selectedPerson = SelectPersonWithCancel();
+        if (selectedPerson == null)
+        {
+            return; // Cancel
+        }
+
+        Console.WriteLine($"\nGift Ideas for {selectedPerson.Name}:");
+
+        if (selectedPerson.GiftIdeas.Count == 0)
+        {
+            Console.WriteLine("(none yet)");
+            return;
+        }
+
+        foreach (var idea in selectedPerson.GiftIdeas)
+        {
+            Console.WriteLine(idea.ToString());
+        }
+    }
+
+    private void TrackPurchasesMenu()
+    {
+        string choice;
+
+        do
+        {
+            Console.WriteLine("\n--- Track Purchases ---");
+            Console.WriteLine("1) Record Purchase (FR5)");
+            Console.WriteLine("2) View Purchases");
+            Console.WriteLine("3) Cancel");
+            Console.Write("Select an option: ");
+
+            choice = Console.ReadLine() ?? "";
+
+            if (choice == "1")
+            {
+                RecordPurchaseFlow();
+            }
+            else if (choice == "2")
+            {
+                ViewPurchasesFlow();
+            }
+
+        } while (choice != "3");
+    }
+
+    private void RecordPurchaseFlow()
+    {
+        if (dataManager.People.Count == 0)
+        {
+            Console.WriteLine("\nNo people available. Add a person first.");
+            return;
+        }
+
         var selectedPerson = SelectPersonWithCancel();
         if (selectedPerson == null)
         {
@@ -190,12 +259,43 @@ public class ConsoleUI
         }
     }
 
-    // --------------------
-    // Shared Helper
-    // --------------------
-    private Person? SelectPersonWithCancel()
+    private void ViewPurchasesFlow()
+{
+    if (dataManager.People.Count == 0)
     {
-        Console.WriteLine("Select a person:");
+        Console.WriteLine("\nNo people available. Add a person first.");
+        return;
+    }
+
+    var selectedPerson = SelectPersonWithCancel();
+    if (selectedPerson == null)
+    {
+        return; // Cancel
+    }
+
+    Console.WriteLine($"\nPurchases for {selectedPerson.Name}:");
+
+    if (selectedPerson.Purchases.Count == 0)
+    {
+        Console.WriteLine("(none yet)");
+        return;
+    }
+
+    decimal total = 0;
+
+    foreach (var purchase in selectedPerson.Purchases)
+    {
+        Console.WriteLine(purchase.ToString());
+        total += purchase.Amount;
+    }
+
+    Console.WriteLine("-----------------------");
+    Console.WriteLine($"Total Spent: ${total}");
+}
+
+      private Person? SelectPersonWithCancel()
+    {
+        Console.WriteLine("\nSelect a person:");
 
         for (int i = 0; i < dataManager.People.Count; i++)
         {
@@ -224,4 +324,4 @@ public class ConsoleUI
 
         return dataManager.People[choice - 1];
     }
-}   
+}
