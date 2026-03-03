@@ -8,12 +8,15 @@ namespace GiftPlanner;
 
 public class DataManager
 {
+    // File paths used to store application data
     private readonly string peopleFile = "people.txt";
     private readonly string giftIdeasFile = "giftideas.txt";
     private readonly string purchasesFile = "purchases.txt";
 
+    // In-memory list of all people in the system
     public List<Person> People { get; }
 
+    // Constructor initializes lists and loads saved data from files
     public DataManager()
     {
         People = new List<Person>();
@@ -23,22 +26,22 @@ public class DataManager
         LoadPurchases();
     }
 
-    // --------------------
-    // People
-    // --------------------
+    // Code to add people and save them to file
     public void AddPerson(Person person)
     {
         People.Add(person);
 
-        // Append to file: PersonId|Name
+        // Save person to file as: PersonId|Name
         File.AppendAllText(peopleFile, $"{person.PersonId}|{person.Name}{Environment.NewLine}");
     }
 
+    // Code to find a person by their ID
     public Person? FindPersonById(int personId)
     {
         return People.FirstOrDefault(p => p.PersonId == personId);
     }
 
+    // Code to load people from file when the application starts
     private void LoadPeople()
     {
         if (!File.Exists(peopleFile))
@@ -64,9 +67,7 @@ public class DataManager
         }
     }
 
-    // --------------------
-    // Gift Ideas (FR3)
-    // --------------------
+    // Code to add gift ideas linked to a person and save them to file
     public GiftIdea? AddGiftIdeaToPerson(int personId, string description)
     {
         var person = FindPersonById(personId);
@@ -80,12 +81,13 @@ public class DataManager
         var giftIdea = new GiftIdea(newGiftIdeaId, description);
         person.GiftIdeas.Add(giftIdea);
 
-        // Append to file: PersonId|GiftIdeaId|Description
+        // Save gift idea as: PersonId|GiftIdeaId|Description
         File.AppendAllText(giftIdeasFile, $"{personId}|{giftIdea.GiftIdeaId}|{giftIdea.Description}{Environment.NewLine}");
 
         return giftIdea;
     }
 
+    // Code to load gift ideas from file when the application starts
     private void LoadGiftIdeas()
     {
         if (!File.Exists(giftIdeasFile))
@@ -115,9 +117,7 @@ public class DataManager
         }
     }
 
-    // --------------------
-    // Purchases (FR5)
-    // --------------------
+    // Code to record purchases for a person and save them to file
     public Purchase? AddPurchaseToPerson(int personId, decimal amount)
     {
         var person = FindPersonById(personId);
@@ -131,12 +131,16 @@ public class DataManager
         var purchase = new Purchase(newPurchaseId, amount);
         person.Purchases.Add(purchase);
 
-        // Append to file: PersonId|PurchaseId|Amount
-        File.AppendAllText(purchasesFile, $"{personId}|{purchase.PurchaseId}|{purchase.Amount.ToString(CultureInfo.InvariantCulture)}{Environment.NewLine}");
+        // Save purchase as: PersonId|PurchaseId|Amount
+        File.AppendAllText(
+            purchasesFile,
+            $"{personId}|{purchase.PurchaseId}|{purchase.Amount.ToString(CultureInfo.InvariantCulture)}{Environment.NewLine}"
+        );
 
         return purchase;
     }
 
+    // Code to load purchases from file when the application starts
     private void LoadPurchases()
     {
         if (!File.Exists(purchasesFile))

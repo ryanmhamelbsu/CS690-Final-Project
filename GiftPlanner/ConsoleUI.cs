@@ -2,15 +2,19 @@ using System;
 
 namespace GiftPlanner;
 
+// Handles all console menus and user interaction for the application
 public class ConsoleUI
 {
+    // Holds access to application data and file storage logic
     private DataManager dataManager;
 
+    // Constructor creates the DataManager and loads saved data
     public ConsoleUI()
     {
         dataManager = new DataManager();
     }
 
+    // Code to display the main menu and route the user to feature menus
     public void Show()
     {
         string command;
@@ -42,6 +46,7 @@ public class ConsoleUI
         } while (command != "4");
     }
 
+    // Code to display the Manage People menu (FR1)
     private void ManagePeopleMenu()
     {
         string choice;
@@ -68,6 +73,7 @@ public class ConsoleUI
         } while (choice != "3");
     }
 
+    // Code to add a person based on user input (FR1)
     private void AddPersonFlow()
     {
         Console.Write("\nEnter person name: ");
@@ -87,6 +93,7 @@ public class ConsoleUI
         Console.WriteLine("Person added successfully!");
     }
 
+    // Code to list all saved people
     private void ListPeople()
     {
         Console.WriteLine("\nPeople:");
@@ -103,6 +110,7 @@ public class ConsoleUI
         }
     }
 
+    // Code to display the Manage Gift Ideas menu (FR3)
     private void ManageGiftIdeasMenu()
     {
         string choice;
@@ -129,6 +137,7 @@ public class ConsoleUI
         } while (choice != "3");
     }
 
+    // Code to add a gift idea linked to a selected person (FR3)
     private void AddGiftIdeaFlow()
     {
         if (dataManager.People.Count == 0)
@@ -164,6 +173,7 @@ public class ConsoleUI
         }
     }
 
+    // Code to view all gift ideas for a selected person
     private void ViewGiftIdeasFlow()
     {
         if (dataManager.People.Count == 0)
@@ -192,6 +202,7 @@ public class ConsoleUI
         }
     }
 
+    // Code to display the Track Purchases menu (FR5)
     private void TrackPurchasesMenu()
     {
         string choice;
@@ -218,6 +229,7 @@ public class ConsoleUI
         } while (choice != "3");
     }
 
+    // Code to record a purchase amount for a selected person (FR5)
     private void RecordPurchaseFlow()
     {
         if (dataManager.People.Count == 0)
@@ -259,41 +271,43 @@ public class ConsoleUI
         }
     }
 
+    // Code to view purchases for a selected person and display the total spent
     private void ViewPurchasesFlow()
-{
-    if (dataManager.People.Count == 0)
     {
-        Console.WriteLine("\nNo people available. Add a person first.");
-        return;
+        if (dataManager.People.Count == 0)
+        {
+            Console.WriteLine("\nNo people available. Add a person first.");
+            return;
+        }
+
+        var selectedPerson = SelectPersonWithCancel();
+        if (selectedPerson == null)
+        {
+            return; // Cancel
+        }
+
+        Console.WriteLine($"\nPurchases for {selectedPerson.Name}:");
+
+        if (selectedPerson.Purchases.Count == 0)
+        {
+            Console.WriteLine("(none yet)");
+            return;
+        }
+
+        decimal total = 0;
+
+        foreach (var purchase in selectedPerson.Purchases)
+        {
+            Console.WriteLine(purchase.ToString());
+            total += purchase.Amount;
+        }
+
+        Console.WriteLine("-----------------------");
+        Console.WriteLine($"Total Spent: ${total}");
     }
 
-    var selectedPerson = SelectPersonWithCancel();
-    if (selectedPerson == null)
-    {
-        return; // Cancel
-    }
-
-    Console.WriteLine($"\nPurchases for {selectedPerson.Name}:");
-
-    if (selectedPerson.Purchases.Count == 0)
-    {
-        Console.WriteLine("(none yet)");
-        return;
-    }
-
-    decimal total = 0;
-
-    foreach (var purchase in selectedPerson.Purchases)
-    {
-        Console.WriteLine(purchase.ToString());
-        total += purchase.Amount;
-    }
-
-    Console.WriteLine("-----------------------");
-    Console.WriteLine($"Total Spent: ${total}");
-}
-
-      private Person? SelectPersonWithCancel()
+    // Code to let the user select a person or cancel and return to the previous menu
+    private Person? SelectPersonWithCancel()
     {
         Console.WriteLine("\nSelect a person:");
 
