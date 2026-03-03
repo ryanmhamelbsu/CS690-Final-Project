@@ -1,0 +1,31 @@
+# Build results
+bin/
+obj/
+
+# VS Code
+.vscode/
+
+# Rider / JetBrains
+.idea/
+
+# User-specific files
+*.user
+*.suo
+*.userprefs
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Test results
+TestResults/
+
+# Temporary files
+*.tmp
+*.cache
+
+# Environment files
+.env
