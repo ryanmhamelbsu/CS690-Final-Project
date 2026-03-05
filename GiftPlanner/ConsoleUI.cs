@@ -1,5 +1,6 @@
 using System;
-using System.Linq;
+using System.Linq;//https://learn.microsoft.com/en-us/dotnet/csharp/linq/
+
 
 namespace GiftPlanner;
 
@@ -9,20 +10,20 @@ public class ConsoleUI
     // Holds access to application data and file storage logic
     private DataManager dataManager;
 
-    // Constructor creates the DataManager and loads saved data
+    // A function to create the DataManager and load saved data
     public ConsoleUI()
     {
         dataManager = new DataManager();
     }
 
-    // Code to display the main menu and route the user to feature menus
+    // A function to display the main menu and route the user to feature menus
     public void Show()
     {
         string command;
 
         do
         {
-            Console.WriteLine("\n--- Gift Planner ---");
+            Console.WriteLine("\n--- GIFT PLANNER ---");
             Console.WriteLine("1) Manage People");
             Console.WriteLine("2) Manage Gift Ideas");
             Console.WriteLine("3) Track Purchases");
@@ -47,14 +48,14 @@ public class ConsoleUI
         } while (command != "4");
     }
 
-    // Code to display the Manage People menu
+    // A function to display the Manage People menu
     private void ManagePeopleMenu()
     {
         string choice;
 
         do
         {
-            Console.WriteLine("\n--- Manage People ---");
+            Console.WriteLine("\n--- MANAGE PEOPLE ---");
             Console.WriteLine("1) Add Person");
             Console.WriteLine("2) List People");
             Console.WriteLine("3) Cancel");
@@ -74,11 +75,18 @@ public class ConsoleUI
         } while (choice != "3");
     }
 
-    // Code to add a person based on user input
+    // A function to add a person based on user input (supports typing Cancel to go back)
     private void AddPersonFlow()
     {
-        Console.Write("\nEnter person name: ");
+        Console.Write("\nEnter person name (or type Cancel to go back): ");
         string name = Console.ReadLine() ?? "";
+
+        // Let the user escape if they entered this screen by mistake
+        if (name.Trim().Equals("cancel", StringComparison.OrdinalIgnoreCase))
+        {
+            Console.WriteLine("\nCancelled. Returning to previous menu.\n");
+            return;
+        }
 
         if (string.IsNullOrWhiteSpace(name))
         {
@@ -101,7 +109,7 @@ public class ConsoleUI
         Console.WriteLine("\nPerson added successfully!\n");
     }
 
-    // Code to list all saved people
+    // A function to list all saved people
     private void ListPeople()
     {
         Console.WriteLine("\nPeople:");
@@ -118,14 +126,14 @@ public class ConsoleUI
         }
     }
 
-    // Code to display the Manage Gift Ideas menu
+    // A function to display the Manage Gift Ideas menu
     private void ManageGiftIdeasMenu()
     {
         string choice;
 
         do
         {
-            Console.WriteLine("\n--- Manage Gift Ideas ---");
+            Console.WriteLine("\n--- MANAGE GIFT IDEAS ---");
             Console.WriteLine("1) Add Gift Idea");
             Console.WriteLine("2) View Gift Ideas");
             Console.WriteLine("3) Cancel");
@@ -145,7 +153,7 @@ public class ConsoleUI
         } while (choice != "3");
     }
 
-    // Code to add a gift idea linked to a selected person
+    // A function to add a gift idea linked to a selected person (supports typing Cancel to go back)
     private void AddGiftIdeaFlow()
     {
         if (dataManager.People.Count == 0)
@@ -160,8 +168,15 @@ public class ConsoleUI
             return; // Cancel
         }
 
-        Console.Write("Enter gift idea description: ");
+        Console.Write("Enter gift idea description (or type Cancel to go back): ");
         string description = Console.ReadLine() ?? "";
+
+        // Let the user escape if they entered this screen by mistake
+        if (description.Trim().Equals("cancel", StringComparison.OrdinalIgnoreCase))
+        {
+            Console.WriteLine("\nCancelled. Returning to previous menu.\n");
+            return;
+        }
 
         if (string.IsNullOrWhiteSpace(description))
         {
@@ -181,7 +196,7 @@ public class ConsoleUI
         }
     }
 
-    // Code to view all gift ideas for a selected person
+    // A function to view all gift ideas for a selected person
     private void ViewGiftIdeasFlow()
     {
         if (dataManager.People.Count == 0)
@@ -210,14 +225,14 @@ public class ConsoleUI
         }
     }
 
-    // Code to display the Track Purchases menu
+    // A function to display the Track Purchases menu
     private void TrackPurchasesMenu()
     {
         string choice;
 
         do
         {
-            Console.WriteLine("\n--- Track Purchases ---");
+            Console.WriteLine("\n--- TRACK PURCHASES ---");
             Console.WriteLine("1) Record Purchase");
             Console.WriteLine("2) View Purchases");
             Console.WriteLine("3) Cancel");
@@ -237,7 +252,7 @@ public class ConsoleUI
         } while (choice != "3");
     }
 
-    // Code to record a purchase amount for a selected person
+    // A function to record a purchase amount for a selected person (supports typing Cancel to go back)
     private void RecordPurchaseFlow()
     {
         if (dataManager.People.Count == 0)
@@ -252,8 +267,15 @@ public class ConsoleUI
             return; // Cancel
         }
 
-        Console.Write("Enter purchase amount (example: $25.99): $");
+        Console.Write("Enter purchase amount (example: 25.99) or type Cancel to go back: ");
         string input = Console.ReadLine() ?? "";
+
+        // Let the user escape if they entered this screen by mistake
+        if (input.Trim().Equals("cancel", StringComparison.OrdinalIgnoreCase))
+        {
+            Console.WriteLine("\nCancelled. Returning to previous menu.\n");
+            return;
+        }
 
         if (!decimal.TryParse(input, out decimal amount))
         {
@@ -279,7 +301,7 @@ public class ConsoleUI
         }
     }
 
-    // Code to view purchases for a selected person and display the total spent
+    // A function to view purchases for a selected person and display the total spent
     private void ViewPurchasesFlow()
     {
         if (dataManager.People.Count == 0)
@@ -314,7 +336,7 @@ public class ConsoleUI
         Console.WriteLine($"Total Spent: ${total}");
     }
 
-    // Code to let the user select a person or cancel and return to the previous menu
+    // A function to let the user select a person or cancel and return to the previous menu
     private Person? SelectPersonWithCancel()
     {
         Console.WriteLine("\nSelect a person:");

@@ -1,24 +1,46 @@
 using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.IO;
-using System.Linq;
+using System.Collections.Generic; //https://learn.microsoft.com/en-us/dotnet/standard/generics/collections
+using System.Globalization; //https://learn.microsoft.com/en-us/dotnet/core/extensions/globalization
+using System.IO; //https://learn.microsoft.com/en-us/dotnet/standard/io/
+using System.Linq; //https://learn.microsoft.com/en-us/dotnet/csharp/linq/
 
 namespace GiftPlanner;
 
 public class DataManager
 {
-    // File paths used to store application data
-    private readonly string peopleFile = "people.txt";
-    private readonly string giftIdeasFile = "giftideas.txt";
-    private readonly string purchasesFile = "purchases.txt";
+    // Code to store file paths in one consistent location
+    private readonly string dataFolder;
+    private readonly string peopleFile;
+    private readonly string giftIdeasFile;
+    private readonly string purchasesFile;
 
-    // In-memory list of all people in the system
+    // Code to store all people in memory while the program is running
     public List<Person> People { get; }
 
-    // Constructor initializes lists and loads saved data from files
+    // A function to initialize file paths and load saved data
     public DataManager()
     {
+        // Code to detect where the program is being run from
+        string currentFolder = Directory.GetCurrentDirectory();
+
+        // Code to always save files inside the GiftPlanner folder
+        if (Path.GetFileName(currentFolder) == "GiftPlanner")
+        {
+            dataFolder = currentFolder; // running inside GiftPlanner folder
+        }
+        else
+        {
+            dataFolder = Path.Combine(currentFolder, "GiftPlanner"); // running from repo root
+        }
+
+        // Code to build full file paths inside the data folder
+        peopleFile = Path.Combine(dataFolder, "people.txt");
+        giftIdeasFile = Path.Combine(dataFolder, "giftideas.txt");
+        purchasesFile = Path.Combine(dataFolder, "purchases.txt");
+
+        // Code to ensure the data folder exists before loading/saving
+        Directory.CreateDirectory(dataFolder);
+
         People = new List<Person>();
 
         LoadPeople();
@@ -26,7 +48,7 @@ public class DataManager
         LoadPurchases();
     }
 
-    // Code to add people and save them to file
+    // A function to add a person and save them to file
     public void AddPerson(Person person)
     {
         People.Add(person);
@@ -35,13 +57,13 @@ public class DataManager
         File.AppendAllText(peopleFile, $"{person.PersonId}|{person.Name}{Environment.NewLine}");
     }
 
-    // Code to find a person by their ID
+    // A function to find a person by their ID
     public Person? FindPersonById(int personId)
     {
         return People.FirstOrDefault(p => p.PersonId == personId);
     }
 
-    // Code to load people from file when the application starts
+    // A function to load people from file when the application starts
     private void LoadPeople()
     {
         if (!File.Exists(peopleFile))
@@ -67,7 +89,7 @@ public class DataManager
         }
     }
 
-    // Code to add gift ideas linked to a person and save them to file
+    // A function to add a gift idea to a person and save it to file
     public GiftIdea? AddGiftIdeaToPerson(int personId, string description)
     {
         var person = FindPersonById(personId);
@@ -87,7 +109,7 @@ public class DataManager
         return giftIdea;
     }
 
-    // Code to load gift ideas from file when the application starts
+    // A function to load gift ideas from file when the application starts
     private void LoadGiftIdeas()
     {
         if (!File.Exists(giftIdeasFile))
@@ -117,7 +139,7 @@ public class DataManager
         }
     }
 
-    // Code to record purchases for a person and save them to file
+    // A function to add a purchase to a person and save it to file
     public Purchase? AddPurchaseToPerson(int personId, decimal amount)
     {
         var person = FindPersonById(personId);
@@ -140,7 +162,7 @@ public class DataManager
         return purchase;
     }
 
-    // Code to load purchases from file when the application starts
+    // A function to load purchases from file when the application starts
     private void LoadPurchases()
     {
         if (!File.Exists(purchasesFile))
