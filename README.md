@@ -1,6 +1,6 @@
 # CS690-Final-Project: Day In the Life of Oliver
 
-# Gift Planner
+## Gift Planner
 
 Gift Planner is a simple .NET console application for managing gift ideas and purchases for people throughout the year.
 
