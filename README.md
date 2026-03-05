@@ -1,4 +1,7 @@
 # CS690-Final-Project
+
 Ryan Hamel's Final Project for Day In the Life of Oliver
-I see your curiosity got the best of you if your in this file. :)
-Enjoy My project.
+
+I hope you like it- feel free to add more names and gift that keep in line with the theme.  :)
+
+---Bazinga---
