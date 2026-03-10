@@ -1,4 +1,4 @@
-# CS690-Final-Project: Day In the Life of Oliver
+# CS690 Final Project
 
 ## Gift Planner
 
@@ -12,16 +12,42 @@ v1.0.0
 - Store gift ideas for each person
 - Record purchases
 - Track total spending per person
+- View upcoming reminders
 
-## Documentation
-Full documentation is available in the project Wiki.
+## Download and Run
 
-## Run the Application
+The recommended way to run the application is to download the compiled version from the **Releases** section.
+
+1. Go to the repository:
+   
+   https://github.com/ryanmhamelbsu/CS690-Final-Project
+
+2. Click **Releases**
+
+3. Download the latest release package:
+
+```
+GiftPlanner.zip
+```
+
+4. Extract the ZIP file.
+
+5. Open a terminal in the extracted folder and run:
+
+```bash
+dotnet GiftPlanner.dll
+```
+
+## Running from Source (Optional)
+
+If you prefer to run the project from the source code:
 
 ```bash
 dotnet run --project GiftPlanner
 ```
 
- Note: I hope you like it- feel free to add more names and gift ideas that keep in line with the theme.  :)
+## Documentation
 
-### ---Bazinga---
+Full documentation is available in the project Wiki.
+
+
