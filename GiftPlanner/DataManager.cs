@@ -20,18 +20,8 @@ public class DataManager
     // A function to initialize file paths and load saved data
     public DataManager()
     {
-        // Code to detect where the program is being run from
-        string currentFolder = Directory.GetCurrentDirectory();
-
-        // Code to always save files inside the GiftPlanner folder
-        if (Path.GetFileName(currentFolder) == "GiftPlanner")
-        {
-            dataFolder = currentFolder; // running inside GiftPlanner folder
-        }
-        else
-        {
-            dataFolder = Path.Combine(currentFolder, "GiftPlanner"); // running from repo root
-        }
+        // Store data in a dedicated folder next to the published application
+        dataFolder = Path.Combine(AppContext.BaseDirectory, "data");
 
         // Code to build full file paths inside the data folder
         peopleFile = Path.Combine(dataFolder, "people.txt");
