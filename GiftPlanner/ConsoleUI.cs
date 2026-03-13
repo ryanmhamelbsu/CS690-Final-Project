@@ -72,6 +72,7 @@ public class ConsoleUI
                     {
                         "Add Person",
                         "List People",
+                        "Delete Person",
                         "Cancel"
                     }));
 
@@ -84,8 +85,43 @@ public class ConsoleUI
                 ListPeople();
                 Pause();
             }
+            else if (choice == "Delete Person")
+            {
+                DeletePersonFlow();
+            }
 
         } while (choice != "Cancel");
+    }
+
+    // A function to delete a selected person and their associated gift ideas and purchases
+    private void DeletePersonFlow()
+    {
+        if (dataManager.People.Count == 0)
+        {
+            ShowError("No people available to delete.");
+            return;
+        }
+
+        ShowSectionHeader("Delete Person");
+
+        var selectedPerson = SelectPersonWithCancel();
+        if (selectedPerson == null)
+        {
+            ShowWarning("Cancelled. Returning to previous menu.");
+            return;
+        }
+
+        bool confirm = AnsiConsole.Confirm($"Are you sure you want to delete [red]{selectedPerson.Name}[/]?");
+
+        if (!confirm)
+        {
+            ShowWarning("Deletion cancelled.");
+            return;
+        }
+
+        dataManager.DeletePerson(selectedPerson.PersonId);
+
+        ShowSuccess("Person and associated data deleted successfully!");
     }
 
     // A function to add a person based on user input (supports typing Cancel to go back)
@@ -130,6 +166,7 @@ public class ConsoleUI
 
     ShowSuccess("Person added successfully!");
     }
+
     // A function to list all saved people
     private void ListPeople()
     {
@@ -172,6 +209,7 @@ public class ConsoleUI
                     {
                         "Add Gift Idea",
                         "View Gift Ideas",
+                        "Remove Gift Idea",
                         "Cancel"
                     }));
 
@@ -183,6 +221,10 @@ public class ConsoleUI
             {
                 ViewGiftIdeasFlow();
                 Pause();
+            }
+            else if (choice == "Remove Gift Idea")
+            {
+                RemoveGiftIdeaFlow();
             }
 
         } while (choice != "Cancel");
@@ -270,6 +312,55 @@ public class ConsoleUI
         }
 
         AnsiConsole.Write(table);
+    }
+
+    // A function to remove a gift idea from a selected person
+    private void RemoveGiftIdeaFlow()
+    {
+        if (dataManager.People.Count == 0)
+        {
+            ShowError("No people available.");
+            return;
+        }
+
+        ShowSectionHeader("Remove Gift Idea");
+
+        var selectedPerson = SelectPersonWithCancel();
+        if (selectedPerson == null)
+        {
+            ShowWarning("Cancelled. Returning to previous menu.");
+            return;
+        }
+
+        if (selectedPerson.GiftIdeas.Count == 0)
+        {
+            ShowError("This person has no gift ideas.");
+            return;
+        }
+
+        var choices = selectedPerson.GiftIdeas
+            .Select(g => $"{g.GiftIdeaId} - {g.Description}")
+            .ToList();
+
+        choices.Add("Cancel");
+
+        string selection = AnsiConsole.Prompt(
+            new SelectionPrompt<string>()
+                .Title("[yellow]Select a gift idea to remove:[/]")
+                .PageSize(10)
+                .AddChoices(choices));
+
+        if (selection == "Cancel")
+        {
+            ShowWarning("Cancelled.");
+            return;
+        }
+
+        int selectedId = int.Parse(selection.Split(" - ")[0]);
+
+        dataManager.RemoveGiftIdea(selectedPerson.PersonId, selectedId);
+
+        ShowSuccess("Gift idea removed successfully!");
     }
 
     // A function to display the Track Purchases menu

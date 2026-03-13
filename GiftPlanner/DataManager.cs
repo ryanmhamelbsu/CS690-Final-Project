@@ -53,6 +53,37 @@ public class DataManager
         return People.FirstOrDefault(p => p.PersonId == personId);
     }
 
+    // A function to delete a person and all associated data
+    public void DeletePerson(int personId)
+    {
+        var person = FindPersonById(personId);
+        if (person == null)
+        {
+            return;
+        }
+
+        // Remove person from memory
+        People.Remove(person);
+
+        // Rewrite people file
+        File.WriteAllLines(
+            peopleFile,
+            People.Select(p => $"{p.PersonId}|{p.Name}")
+        );
+
+        // Rewrite gift ideas file
+        File.WriteAllLines(
+            giftIdeasFile,
+            People.SelectMany(p => p.GiftIdeas.Select(g => $"{p.PersonId}|{g.GiftIdeaId}|{g.Description}"))
+        );
+
+        // Rewrite purchases file
+        File.WriteAllLines(
+            purchasesFile,
+            People.SelectMany(p => p.Purchases.Select(pr => $"{p.PersonId}|{pr.Item}|{pr.Amount.ToString(CultureInfo.InvariantCulture)}"))
+        );
+    }
+
     // A function to load people from file when the application starts
     private void LoadPeople()
     {
@@ -97,6 +128,30 @@ public class DataManager
         File.AppendAllText(giftIdeasFile, $"{personId}|{giftIdea.GiftIdeaId}|{giftIdea.Description}{Environment.NewLine}");
 
         return giftIdea;
+    }
+
+    // A function to remove a gift idea from a person
+    public void RemoveGiftIdea(int personId, int giftIdeaId)
+    {
+        var person = FindPersonById(personId);
+        if (person == null)
+        {
+            return;
+        }
+
+        var giftIdea = person.GiftIdeas.FirstOrDefault(g => g.GiftIdeaId == giftIdeaId);
+        if (giftIdea == null)
+        {
+            return;
+        }
+
+        person.GiftIdeas.Remove(giftIdea);
+
+        // Rewrite gift ideas file
+        File.WriteAllLines(
+            giftIdeasFile,
+            People.SelectMany(p => p.GiftIdeas.Select(g => $"{p.PersonId}|{g.GiftIdeaId}|{g.Description}"))
+        );
     }
 
     // A function to load gift ideas from file when the application starts
