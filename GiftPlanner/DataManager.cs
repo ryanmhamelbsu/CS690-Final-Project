@@ -13,6 +13,7 @@ public class DataManager
     private readonly string peopleFile;
     private readonly string giftIdeasFile;
     private readonly string purchasesFile;
+    private readonly string importantDatesFile;
 
     // Code to store all people in memory while the program is running
     public List<Person> People { get; }
@@ -27,6 +28,7 @@ public class DataManager
         peopleFile = Path.Combine(dataFolder, "people.txt");
         giftIdeasFile = Path.Combine(dataFolder, "giftideas.txt");
         purchasesFile = Path.Combine(dataFolder, "purchases.txt");
+        importantDatesFile = Path.Combine(dataFolder, "importantdates.txt");
 
         // Code to ensure the data folder exists before loading/saving
         Directory.CreateDirectory(dataFolder);
@@ -36,6 +38,7 @@ public class DataManager
         LoadPeople();
         LoadGiftIdeas();
         LoadPurchases();
+        LoadImportantDates();
     }
 
     // A function to add a person and save them to file
@@ -81,6 +84,12 @@ public class DataManager
         File.WriteAllLines(
             purchasesFile,
             People.SelectMany(p => p.Purchases.Select(pr => $"{p.PersonId}|{pr.Item}|{pr.Amount.ToString(CultureInfo.InvariantCulture)}"))
+        );
+
+        // Rewrite important dates file
+        File.WriteAllLines(
+            importantDatesFile,
+            People.SelectMany(p => p.ImportantDates.Select(d => $"{p.PersonId}|{d.Type}|{d.Date.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)}"))
         );
     }
 
@@ -234,5 +243,93 @@ public class DataManager
 
             person.Purchases.Add(new Purchase(item, amount));
         }
+    }
+
+    // A function to add an important date to a person and save it to file
+    public ImportantDate? AddImportantDateToPerson(int personId, string type, DateTime date)
+    {
+        var person = FindPersonById(personId);
+        if (person == null)
+        {
+            return null;
+        }
+
+        var importantDate = new ImportantDate(type, date);
+        person.ImportantDates.Add(importantDate);
+
+        // Save important date as: PersonId|Type|Date
+        File.AppendAllText(
+            importantDatesFile,
+            $"{personId}|{importantDate.Type}|{importantDate.Date.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)}{Environment.NewLine}"
+        );
+
+        return importantDate;
+    }
+
+    // A function to load important dates from file when the application starts
+    private void LoadImportantDates()
+    {
+        if (!File.Exists(importantDatesFile))
+        {
+            return;
+        }
+
+        var lines = File.ReadAllLines(importantDatesFile);
+
+        foreach (var line in lines)
+        {
+            if (string.IsNullOrWhiteSpace(line)) continue;
+
+            var parts = line.Split('|');
+            if (parts.Length != 3) continue;
+
+            if (!int.TryParse(parts[0], out int personId)) continue;
+
+            var type = parts[1].Trim();
+            if (type == "") continue;
+
+            if (!DateTime.TryParseExact(parts[2], "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime date)) continue;
+
+            var person = FindPersonById(personId);
+            if (person == null) continue;
+
+            person.ImportantDates.Add(new ImportantDate(type, date));
+        }
+    }
+
+    // A function to get all upcoming important dates sorted by the next occurrence
+    public List<(Person Person, ImportantDate ImportantDate, int DaysUntil)> GetUpcomingImportantDates()
+    {
+        var today = DateTime.Today;
+        var upcomingDates = new List<(Person Person, ImportantDate ImportantDate, int DaysUntil)>();
+
+        foreach (var person in People)
+        {
+            foreach (var importantDate in person.ImportantDates)
+            {
+                var nextOccurrence = new DateTime(today.Year, importantDate.Date.Month, importantDate.Date.Day);
+
+                if (nextOccurrence < today)
+                {
+                    nextOccurrence = nextOccurrence.AddYears(1);
+                }
+
+                int daysUntil = (nextOccurrence - today).Days;
+
+                upcomingDates.Add((person, importantDate, daysUntil));
+            }
+        }
+
+        return upcomingDates
+            .OrderBy(x => x.DaysUntil)
+            .ToList();
+    }
+
+    // A function to get important dates happening within the next 7 days
+    public List<(Person Person, ImportantDate ImportantDate, int DaysUntil)> GetImportantDatesWithin7Days()
+    {
+        return GetUpcomingImportantDates()
+            .Where(x => x.DaysUntil <= 7)
+            .ToList();
     }
 }

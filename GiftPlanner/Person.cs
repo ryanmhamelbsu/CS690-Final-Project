@@ -17,6 +17,9 @@ public class Person
     // List of purchases recorded for this person
     public List<Purchase> Purchases { get; set; }
 
+    // List of important dates associated with this person
+    public List<ImportantDate> ImportantDates { get; set; }
+
     // Constructor initializes the person and their related lists
     public Person(int personId, string name)
     {
@@ -25,6 +28,7 @@ public class Person
 
         GiftIdeas = new List<GiftIdea>();
         Purchases = new List<Purchase>();
+        ImportantDates = new List<ImportantDate>();
     }
 
     // Returns a formatted string representation of the person

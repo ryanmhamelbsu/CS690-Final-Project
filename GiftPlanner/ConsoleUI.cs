@@ -25,6 +25,7 @@ public class ConsoleUI
     do
     {
         ShowTitle();
+        ShowUpcomingDateReminders();
 
         choice = AnsiConsole.Prompt(
             new SelectionPrompt<string>()
@@ -73,6 +74,8 @@ public class ConsoleUI
                         "Add Person",
                         "List People",
                         "Delete Person",
+                        "Add Important Date",
+                        "View Upcoming Important Dates",
                         "Cancel"
                     }));
 
@@ -88,6 +91,15 @@ public class ConsoleUI
             else if (choice == "Delete Person")
             {
                 DeletePersonFlow();
+            }
+            else if (choice == "Add Important Date")
+            {
+                AddImportantDateFlow();
+            }
+            else if (choice == "View Upcoming Important Dates")
+            {
+                ViewUpcomingImportantDatesFlow();
+                Pause();
             }
 
         } while (choice != "Cancel");
@@ -170,6 +182,93 @@ public class ConsoleUI
     ShowSuccess("Person added successfully!");
     }
 
+    // A function to add an important date linked to a selected person
+    private void AddImportantDateFlow()
+    {
+        if (dataManager.People.Count == 0)
+        {
+            ShowError("No people available. Add a person first.");
+            return;
+        }
+
+        ShowSectionHeader("Add Important Date");
+
+        var selectedPerson = SelectPersonWithCancel();
+        if (selectedPerson == null)
+        {
+            ShowWarning("Cancelled. Returning to previous menu.");
+            return;
+        }
+
+        string typeChoice = AnsiConsole.Prompt(
+            new SelectionPrompt<string>()
+                .Title("[yellow]Select important date type:[/]")
+                .PageSize(10)
+                .AddChoices(new[]
+                {
+                     "Birthday",
+                    "Anniversary",
+                    "Graduation",
+                    "Wedding",
+                    "Baby Shower",
+                    "Retirement",
+                    "Holiday",
+                    "Custom",
+
+                    "Cancel"
+                }));
+
+        if (typeChoice == "Cancel")
+        {
+            ShowWarning("Cancelled. Returning to previous menu.");
+            return;
+        }
+
+        string dateType = typeChoice;
+
+        if (typeChoice == "Custom")
+        {
+            dateType = AnsiConsole.Ask<string>("Enter custom date type ([grey]or type Cancel to go back[/]):");
+
+            if (dateType.Trim().Equals("cancel", StringComparison.OrdinalIgnoreCase))
+            {
+                ShowWarning("Cancelled. Returning to previous menu.");
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(dateType))
+            {
+                ShowError("Date type cannot be blank.");
+                return;
+            }
+        }
+
+        string input = AnsiConsole.Ask<string>("Enter important date ([grey]MM/DD/YYYY or type Cancel to go back[/]):");
+
+        if (input.Trim().Equals("cancel", StringComparison.OrdinalIgnoreCase))
+        {
+            ShowWarning("Cancelled. Returning to previous menu.");
+            return;
+        }
+
+        if (!DateTime.TryParseExact(input, "MM/dd/yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime date))
+        {
+            ShowError("Please enter a valid date in YYYY-MM-DD format.");
+            return;
+        }
+
+        var importantDate = dataManager.AddImportantDateToPerson(selectedPerson.PersonId, dateType.Trim(), date);
+
+        if (importantDate != null)
+        {
+            ShowSuccess($"Important date added for {selectedPerson.Name}!");
+        }
+        else
+        {
+            ShowError("Unable to add important date.");
+        }
+    }
+
     // A function to list all saved people
     private void ListPeople()
     {
@@ -190,6 +289,39 @@ public class ConsoleUI
         foreach (var person in dataManager.People)
         {
             table.AddRow(person.PersonId.ToString(), person.Name);
+        }
+
+        AnsiConsole.Write(table);
+    }
+
+    // A function to view upcoming important dates for all people
+    private void ViewUpcomingImportantDatesFlow()
+    {
+        ShowSectionHeader("Upcoming Important Dates");
+
+        var upcomingDates = dataManager.GetUpcomingImportantDates();
+
+        if (upcomingDates.Count == 0)
+        {
+            AnsiConsole.MarkupLine("[grey](none yet)[/]");
+            return;
+        }
+
+        var table = new Table()
+            .Border(TableBorder.Rounded)
+            .BorderColor(Color.Blue)
+            .AddColumn("[bold]Name[/]")
+            .AddColumn("[bold]Type[/]")
+            .AddColumn("[bold]Date[/]")
+            .AddColumn("[bold]Days Until[/]");
+
+        foreach (var entry in upcomingDates)
+        {
+            table.AddRow(
+                entry.Person.Name,
+                entry.ImportantDate.Type,
+                entry.ImportantDate.Date.ToString("MMMM dd"),
+                entry.DaysUntil.ToString());
         }
 
         AnsiConsole.Write(table);
@@ -535,6 +667,25 @@ public class ConsoleUI
 
         int selectedId = int.Parse(selection.Split(" - ")[0]);
         return dataManager.FindPersonById(selectedId);
+    }
+
+    // A function to display reminder messages for important dates within 7 days
+    private void ShowUpcomingDateReminders()
+    {
+        var reminders = dataManager.GetImportantDatesWithin7Days();
+
+        if (reminders.Count == 0)
+        {
+            return;
+        }
+
+        foreach (var reminder in reminders)
+        {
+            string dayText = reminder.DaysUntil == 0 ? "today" : $"in {reminder.DaysUntil} day(s)";
+            ShowWarning($"Reminder: {reminder.Person.Name} has a {reminder.ImportantDate.Type} {dayText}.");
+        }
+
+        AnsiConsole.WriteLine();
     }
 
     // A helper function to display the application title
