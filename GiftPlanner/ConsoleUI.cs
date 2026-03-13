@@ -111,9 +111,12 @@ public class ConsoleUI
             return;
         }
 
-        bool confirm = AnsiConsole.Confirm($"Are you sure you want to delete [red]{selectedPerson.Name}[/]?");
+       var confirm = AnsiConsole.Prompt(
+            new SelectionPrompt<string>()
+                .Title($"Are you sure you want to delete [red]{selectedPerson.Name}[/]?")
+                .AddChoices("Yes", "No"));
 
-        if (!confirm)
+        if (confirm == "No")
         {
             ShowWarning("Deletion cancelled.");
             return;
