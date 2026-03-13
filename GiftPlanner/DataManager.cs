@@ -130,7 +130,7 @@ public class DataManager
     }
 
     // A function to add a purchase to a person and save it to file
-    public Purchase? AddPurchaseToPerson(int personId, decimal amount)
+    public Purchase? AddPurchaseToPerson(int personId, string item, decimal amount)
     {
         var person = FindPersonById(personId);
         if (person == null)
@@ -138,15 +138,13 @@ public class DataManager
             return null;
         }
 
-        int newPurchaseId = person.Purchases.Count + 1;
-
-        var purchase = new Purchase(newPurchaseId, amount);
+        var purchase = new Purchase(item, amount);
         person.Purchases.Add(purchase);
 
-        // Save purchase as: PersonId|PurchaseId|Amount
+        // Save purchase as: PersonId|Item|Amount
         File.AppendAllText(
             purchasesFile,
-            $"{personId}|{purchase.PurchaseId}|{purchase.Amount.ToString(CultureInfo.InvariantCulture)}{Environment.NewLine}"
+            $"{personId}|{purchase.Item}|{purchase.Amount.ToString(CultureInfo.InvariantCulture)}{Environment.NewLine}"
         );
 
         return purchase;
@@ -170,14 +168,16 @@ public class DataManager
             if (parts.Length != 3) continue;
 
             if (!int.TryParse(parts[0], out int personId)) continue;
-            if (!int.TryParse(parts[1], out int purchaseId)) continue;
+
+            var item = parts[1].Trim();
+            if (item == "") continue;
 
             if (!decimal.TryParse(parts[2], NumberStyles.Number, CultureInfo.InvariantCulture, out decimal amount)) continue;
 
             var person = FindPersonById(personId);
             if (person == null) continue;
 
-            person.Purchases.Add(new Purchase(purchaseId, amount));
+            person.Purchases.Add(new Purchase(item, amount));
         }
     }
 }

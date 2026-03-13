@@ -1,6 +1,7 @@
 using System;
-using System.Linq;//https://learn.microsoft.com/en-us/dotnet/csharp/linq/
-
+using System.Globalization;
+using System.Linq; //https://learn.microsoft.com/en-us/dotnet/csharp/linq/
+using Spectre.Console;
 
 namespace GiftPlanner;
 
@@ -19,33 +20,39 @@ public class ConsoleUI
     // A function to display the main menu and route the user to feature menus
     public void Show()
     {
-        string command;
+    string choice;
 
-        do
+    do
+    {
+        ShowTitle();
+
+        choice = AnsiConsole.Prompt(
+            new SelectionPrompt<string>()
+                .Title("[yellow]Select an option:[/]")
+                .PageSize(10)
+                .HighlightStyle("cyan")
+                .AddChoices(new[]
+                {
+                    "👥 Manage People",
+                    "🎁 Manage Gift Ideas",
+                    "💳 Track Purchases",
+                    "🚪 Exit"
+                }));
+
+        if (choice.Contains("Manage People"))
         {
-            Console.WriteLine("\n--- GIFT PLANNER ---");
-            Console.WriteLine("1) Manage People");
-            Console.WriteLine("2) Manage Gift Ideas");
-            Console.WriteLine("3) Track Purchases");
-            Console.WriteLine("4) Exit");
-            Console.Write("Select an option: ");
+            ManagePeopleMenu();
+        }
+        else if (choice.Contains("Manage Gift Ideas"))
+        {
+            ManageGiftIdeasMenu();
+        }
+        else if (choice.Contains("Track Purchases"))
+        {
+            TrackPurchasesMenu();
+        }
 
-            command = Console.ReadLine() ?? "";
-
-            if (command == "1")
-            {
-                ManagePeopleMenu();
-            }
-            else if (command == "2")
-            {
-                ManageGiftIdeasMenu();
-            }
-            else if (command == "3")
-            {
-                TrackPurchasesMenu();
-            }
-
-        } while (command != "4");
+    } while (!choice.Contains("Exit"));
     }
 
     // A function to display the Manage People menu
@@ -55,75 +62,97 @@ public class ConsoleUI
 
         do
         {
-            Console.WriteLine("\n--- MANAGE PEOPLE ---");
-            Console.WriteLine("1) Add Person");
-            Console.WriteLine("2) List People");
-            Console.WriteLine("3) Cancel");
-            Console.Write("Select an option: ");
+            ShowSectionHeader("Manage People");
 
-            choice = Console.ReadLine() ?? "";
+            choice = AnsiConsole.Prompt(
+                new SelectionPrompt<string>()
+                    .Title("[yellow]Select an option:[/]")
+                    .PageSize(10)
+                    .AddChoices(new[]
+                    {
+                        "Add Person",
+                        "List People",
+                        "Cancel"
+                    }));
 
-            if (choice == "1")
+            if (choice == "Add Person")
             {
                 AddPersonFlow();
             }
-            else if (choice == "2")
+            else if (choice == "List People")
             {
                 ListPeople();
+                Pause();
             }
 
-        } while (choice != "3");
+        } while (choice != "Cancel");
     }
 
     // A function to add a person based on user input (supports typing Cancel to go back)
     private void AddPersonFlow()
     {
-        Console.Write("\nEnter person name (or type Cancel to go back): ");
-        string name = Console.ReadLine() ?? "";
+    ShowSectionHeader("Add Person");
 
-        // Let the user escape if they entered this screen by mistake
-        if (name.Trim().Equals("cancel", StringComparison.OrdinalIgnoreCase))
-        {
-            Console.WriteLine("\nCancelled. Returning to previous menu.\n");
-            return;
-        }
+    string name = AnsiConsole.Ask<string>("Enter person name ([grey]or type Cancel to go back[/]):");
 
-        if (string.IsNullOrWhiteSpace(name))
-        {
-            Console.WriteLine("\nError: Name cannot be blank.\n");
-            return;
-        }
-
-        // Reject names containing numbers
-        if (name.Any(char.IsDigit))
-        {
-            Console.WriteLine("\nError: Name cannot contain numbers.\n");
-            return;
-        }
-
-        int newId = dataManager.People.Count + 1;
-
-        var person = new Person(newId, name.Trim());
-        dataManager.AddPerson(person);
-
-        Console.WriteLine("\nPerson added successfully!\n");
+    // Let the user escape if they entered this screen by mistake
+    if (name.Trim().Equals("cancel", StringComparison.OrdinalIgnoreCase))
+    {
+        ShowWarning("Cancelled. Returning to previous menu.");
+        return;
     }
 
+    if (string.IsNullOrWhiteSpace(name))
+    {
+        ShowError("Name cannot be blank.");
+        return;
+    }
+
+    // Reject names containing numbers
+    if (name.Any(char.IsDigit))
+    {
+        ShowError("Name cannot contain numbers.");
+        return;
+    }
+
+    // NEW: Prevent duplicate names
+    if (dataManager.People.Any(p => 
+        p.Name.Equals(name.Trim(), StringComparison.OrdinalIgnoreCase)))
+    {
+        ShowError("This person already exists in the list.");
+        return;
+    }
+
+    int newId = dataManager.People.Count + 1;
+
+    var person = new Person(newId, name.Trim());
+    dataManager.AddPerson(person);
+
+    ShowSuccess("Person added successfully!");
+    }
     // A function to list all saved people
     private void ListPeople()
     {
-        Console.WriteLine("\nPeople:");
+        ShowSectionHeader("People");
 
         if (dataManager.People.Count == 0)
         {
-            Console.WriteLine("(none yet)");
+            AnsiConsole.MarkupLine("[grey](none yet)[/]");
             return;
         }
 
-        foreach (var p in dataManager.People)
+        var table = new Table()
+            .Border(TableBorder.Rounded)
+            .BorderColor(Color.Cyan1)
+            .AddColumn("[bold]ID[/]")
+            .AddColumn("[bold]Name[/]");
+
+        foreach (var person in dataManager.People)
         {
-            Console.WriteLine(p.ToString());
+            table.AddRow(person.PersonId.ToString(), person.Name);
         }
+
+        AnsiConsole.Write(table);
     }
 
     // A function to display the Manage Gift Ideas menu
@@ -133,24 +162,30 @@ public class ConsoleUI
 
         do
         {
-            Console.WriteLine("\n--- MANAGE GIFT IDEAS ---");
-            Console.WriteLine("1) Add Gift Idea");
-            Console.WriteLine("2) View Gift Ideas");
-            Console.WriteLine("3) Cancel");
-            Console.Write("Select an option: ");
+            ShowSectionHeader("Manage Gift Ideas");
 
-            choice = Console.ReadLine() ?? "";
+            choice = AnsiConsole.Prompt(
+                new SelectionPrompt<string>()
+                    .Title("[yellow]Select an option:[/]")
+                    .PageSize(10)
+                    .AddChoices(new[]
+                    {
+                        "Add Gift Idea",
+                        "View Gift Ideas",
+                        "Cancel"
+                    }));
 
-            if (choice == "1")
+            if (choice == "Add Gift Idea")
             {
                 AddGiftIdeaFlow();
             }
-            else if (choice == "2")
+            else if (choice == "View Gift Ideas")
             {
                 ViewGiftIdeasFlow();
+                Pause();
             }
 
-        } while (choice != "3");
+        } while (choice != "Cancel");
     }
 
     // A function to add a gift idea linked to a selected person (supports typing Cancel to go back)
@@ -158,29 +193,30 @@ public class ConsoleUI
     {
         if (dataManager.People.Count == 0)
         {
-            Console.WriteLine("\nError: No people available. Add a person first.\n");
+            ShowError("No people available. Add a person first.");
             return;
         }
+
+        ShowSectionHeader("Add Gift Idea");
 
         var selectedPerson = SelectPersonWithCancel();
         if (selectedPerson == null)
         {
-            return; // Cancel
+            ShowWarning("Cancelled. Returning to previous menu.");
+            return;
         }
 
-        Console.Write("Enter gift idea description (or type Cancel to go back): ");
-        string description = Console.ReadLine() ?? "";
+        string description = AnsiConsole.Ask<string>("Enter gift idea description ([grey]or type Cancel to go back[/]):");
 
-        // Let the user escape if they entered this screen by mistake
         if (description.Trim().Equals("cancel", StringComparison.OrdinalIgnoreCase))
         {
-            Console.WriteLine("\nCancelled. Returning to previous menu.\n");
+            ShowWarning("Cancelled. Returning to previous menu.");
             return;
         }
 
         if (string.IsNullOrWhiteSpace(description))
         {
-            Console.WriteLine("\nError: Description cannot be blank.\n");
+            ShowError("Description cannot be blank.");
             return;
         }
 
@@ -188,11 +224,11 @@ public class ConsoleUI
 
         if (giftIdea != null)
         {
-            Console.WriteLine($"\nGift idea added for {selectedPerson.Name}!\n");
+            ShowSuccess($"Gift idea added for {selectedPerson.Name}!");
         }
         else
         {
-            Console.WriteLine("\nError: Unable to add gift idea.\n");
+            ShowError("Unable to add gift idea.");
         }
     }
 
@@ -201,28 +237,39 @@ public class ConsoleUI
     {
         if (dataManager.People.Count == 0)
         {
-            Console.WriteLine("\nError: No people available. Add a person first.\n");
+            ShowError("No people available. Add a person first.");
             return;
         }
+
+        ShowSectionHeader("View Gift Ideas");
 
         var selectedPerson = SelectPersonWithCancel();
         if (selectedPerson == null)
         {
-            return; // Cancel
-        }
-
-        Console.WriteLine($"\nGift Ideas for {selectedPerson.Name}:");
-
-        if (selectedPerson.GiftIdeas.Count == 0)
-        {
-            Console.WriteLine("(none yet)");
+            ShowWarning("Cancelled. Returning to previous menu.");
             return;
         }
 
+        ShowSectionHeader($"Gift Ideas for {selectedPerson.Name}");
+
+        if (selectedPerson.GiftIdeas.Count == 0)
+        {
+            AnsiConsole.MarkupLine("[grey](none yet)[/]");
+            return;
+        }
+
+        var table = new Table()
+            .Border(TableBorder.Rounded)
+            .BorderColor(Color.Magenta1)
+            .AddColumn("[bold]Gift Idea ID[/]")
+            .AddColumn("[bold]Description[/]");
+
         foreach (var idea in selectedPerson.GiftIdeas)
         {
-            Console.WriteLine(idea.ToString());
+            table.AddRow(idea.GiftIdeaId.ToString(), idea.Description);
         }
+
+        AnsiConsole.Write(table);
     }
 
     // A function to display the Track Purchases menu
@@ -232,72 +279,94 @@ public class ConsoleUI
 
         do
         {
-            Console.WriteLine("\n--- TRACK PURCHASES ---");
-            Console.WriteLine("1) Record Purchase");
-            Console.WriteLine("2) View Purchases");
-            Console.WriteLine("3) Cancel");
-            Console.Write("Select an option: ");
+            ShowSectionHeader("Track Purchases");
 
-            choice = Console.ReadLine() ?? "";
+            choice = AnsiConsole.Prompt(
+                new SelectionPrompt<string>()
+                    .Title("[yellow]Select an option:[/]")
+                    .PageSize(10)
+                    .AddChoices(new[]
+                    {
+                        "Record Purchase",
+                        "View Purchases",
+                        "Cancel"
+                    }));
 
-            if (choice == "1")
+            if (choice == "Record Purchase")
             {
                 RecordPurchaseFlow();
             }
-            else if (choice == "2")
+            else if (choice == "View Purchases")
             {
                 ViewPurchasesFlow();
+                Pause();
             }
 
-        } while (choice != "3");
+        } while (choice != "Cancel");
     }
 
-    // A function to record a purchase amount for a selected person (supports typing Cancel to go back)
+    // A function to record a purchase item and amount for a selected person
     private void RecordPurchaseFlow()
     {
         if (dataManager.People.Count == 0)
         {
-            Console.WriteLine("\nError: No people available. Add a person first.\n");
+            ShowError("No people available. Add a person first.");
             return;
         }
+
+        ShowSectionHeader("Record Purchase");
 
         var selectedPerson = SelectPersonWithCancel();
         if (selectedPerson == null)
         {
-            return; // Cancel
-        }
-
-        Console.Write("Enter purchase amount (example: 25.99) or type Cancel to go back: ");
-        string input = Console.ReadLine() ?? "";
-
-        // Let the user escape if they entered this screen by mistake
-        if (input.Trim().Equals("cancel", StringComparison.OrdinalIgnoreCase))
-        {
-            Console.WriteLine("\nCancelled. Returning to previous menu.\n");
+            ShowWarning("Cancelled. Returning to previous menu.");
             return;
         }
 
-        if (!decimal.TryParse(input, out decimal amount))
+        string item = AnsiConsole.Ask<string>("Enter purchase item ([grey]or type Cancel to go back[/]):");
+
+        if (item.Trim().Equals("cancel", StringComparison.OrdinalIgnoreCase))
         {
-            Console.WriteLine("\nError: Please enter a valid number.\n");
+            ShowWarning("Cancelled. Returning to previous menu.");
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(item))
+        {
+            ShowError("Purchase item cannot be blank.");
+            return;
+        }
+
+        string input = AnsiConsole.Ask<string>("Enter purchase amount ([grey]example: 25.99 or type Cancel to go back[/]):");
+
+        if (input.Trim().Equals("cancel", StringComparison.OrdinalIgnoreCase))
+        {
+            ShowWarning("Cancelled. Returning to previous menu.");
+            return;
+        }
+
+        if (!decimal.TryParse(input, NumberStyles.Number, CultureInfo.InvariantCulture, out decimal amount) &&
+            !decimal.TryParse(input, out amount))
+        {
+            ShowError("Please enter a valid number.");
             return;
         }
 
         if (amount <= 0)
         {
-            Console.WriteLine("\nError: Amount must be greater than 0.\n");
+            ShowError("Amount must be greater than 0.");
             return;
         }
 
-        var purchase = dataManager.AddPurchaseToPerson(selectedPerson.PersonId, amount);
+        var purchase = dataManager.AddPurchaseToPerson(selectedPerson.PersonId, item.Trim(), amount);
 
         if (purchase != null)
         {
-            Console.WriteLine($"\nPurchase recorded for {selectedPerson.Name}: ${amount}\n");
+            ShowSuccess($"Purchase recorded for {selectedPerson.Name}: {item.Trim()} - ${amount:F2}");
         }
         else
         {
-            Console.WriteLine("\nError: Unable to record purchase.\n");
+            ShowError("Unable to record purchase.");
         }
     }
 
@@ -306,66 +375,118 @@ public class ConsoleUI
     {
         if (dataManager.People.Count == 0)
         {
-            Console.WriteLine("\nError: No people available. Add a person first.\n");
+            ShowError("No people available. Add a person first.");
             return;
         }
+
+        ShowSectionHeader("View Purchases");
 
         var selectedPerson = SelectPersonWithCancel();
         if (selectedPerson == null)
         {
-            return; // Cancel
+            ShowWarning("Cancelled. Returning to previous menu.");
+            return;
         }
 
-        Console.WriteLine($"\nPurchases for {selectedPerson.Name}:");
+        ShowSectionHeader($"Purchases for {selectedPerson.Name}");
 
         if (selectedPerson.Purchases.Count == 0)
         {
-            Console.WriteLine("(none yet)");
+            AnsiConsole.MarkupLine("[grey](none yet)[/]");
             return;
         }
 
         decimal total = 0;
 
+        var table = new Table()
+            .Border(TableBorder.Rounded)
+            .BorderColor(Color.Green)
+            .AddColumn("[bold]Purchases[/]")
+            .AddColumn("[bold]Amount[/]");
+
         foreach (var purchase in selectedPerson.Purchases)
         {
-            Console.WriteLine(purchase.ToString());
+            table.AddRow(purchase.Item, $"${purchase.Amount:F2}");
             total += purchase.Amount;
         }
 
-        Console.WriteLine("-----------------------");
-        Console.WriteLine($"Total Spent: ${total}");
+        AnsiConsole.Write(table);
+        AnsiConsole.MarkupLine($"\n[bold yellow]Total Spent:[/] [green]${total:F2}[/]");
     }
 
     // A function to let the user select a person or cancel and return to the previous menu
     private Person? SelectPersonWithCancel()
     {
-        Console.WriteLine("\nSelect a person:");
-
-        for (int i = 0; i < dataManager.People.Count; i++)
+        if (dataManager.People.Count == 0)
         {
-            Console.WriteLine($"{i + 1}) {dataManager.People[i].Name}");
-        }
-
-        Console.WriteLine($"{dataManager.People.Count + 1}) Cancel");
-        Console.Write("Enter selection: ");
-
-        if (!int.TryParse(Console.ReadLine(), out int choice))
-        {
-            Console.WriteLine("\nError: Invalid selection.\n");
             return null;
         }
 
-        if (choice == dataManager.People.Count + 1)
-        {
-            return null; // Cancel
-        }
+        var choices = dataManager.People
+            .Select(p => $"{p.PersonId} - {p.Name}")
+            .ToList();
 
-        if (choice < 1 || choice > dataManager.People.Count)
+        choices.Add("Cancel");
+
+        string selection = AnsiConsole.Prompt(
+            new SelectionPrompt<string>()
+                .Title("[yellow]Select a person:[/]")
+                .PageSize(10)
+                .AddChoices(choices));
+
+        if (selection == "Cancel")
         {
-            Console.WriteLine("\nError: Invalid selection.\n");
             return null;
         }
 
-        return dataManager.People[choice - 1];
+        int selectedId = int.Parse(selection.Split(" - ")[0]);
+        return dataManager.FindPersonById(selectedId);
+    }
+
+    // A helper function to display the application title
+    private void ShowTitle()
+{
+    AnsiConsole.Clear();
+
+    AnsiConsole.Write(
+        new Rule("[black on lightskyblue1 bold]  Gift Planner  [/]")
+        .RuleStyle("lightskyblue1")
+        .Centered());
+
+    AnsiConsole.MarkupLine("[grey]Manage gift ideas and purchases[/]\n");
+}
+
+    // A helper function to display a section header
+    private void ShowSectionHeader(string title)
+    {
+        AnsiConsole.Write(
+            new Rule($"[yellow]{title}[/]")
+                .RuleStyle("grey")
+                .Centered());
+    }
+
+    // A helper function to display a success badge-style message
+    private void ShowSuccess(string message)
+    {
+        AnsiConsole.MarkupLine($"\n[black on green3_1 bold] SUCCESS [/ ] {message}\n".Replace("[/ ]", "[/]"));
+    }
+
+    // A helper function to display an error badge-style message
+    private void ShowError(string message)
+    {
+        AnsiConsole.MarkupLine($"\n[white on red bold] ERROR [/ ] {message}\n".Replace("[/ ]", "[/]"));
+    }
+
+    // A helper function to display a warning badge-style message
+    private void ShowWarning(string message)
+    {
+        AnsiConsole.MarkupLine($"\n[black on yellow bold] WARNING [/ ] {message}\n".Replace("[/ ]", "[/]"));
+    }
+
+    // A helper function to pause before returning
+    private void Pause()
+    {
+        AnsiConsole.MarkupLine("\n[grey]Press any key to continue...[/]");
+        Console.ReadKey(true);
     }
 }

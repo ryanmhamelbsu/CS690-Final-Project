@@ -3,22 +3,22 @@ namespace GiftPlanner;
 // Represents a purchase recorded for a person
 public class Purchase
 {
-    // Unique identifier for the purchase
-    public int PurchaseId { get; set; }
+    // Description of the item purchased
+    public string Item { get; set; }
 
     // Amount spent for this purchase
     public decimal Amount { get; set; }
 
-    // Constructor initializes the purchase with an ID and amount
-    public Purchase(int purchaseId, decimal amount)
+    // Constructor initializes the purchase with an item description and amount
+    public Purchase(string item, decimal amount)
     {
-        PurchaseId = purchaseId;
+        Item = item;
         Amount = amount;
     }
 
     // Returns a formatted string representation of the purchase
     public override string ToString()
     {
-        return $"{PurchaseId}: ${Amount}";
+        return $"{Item}: ${Amount:F2}";
     }
 }
