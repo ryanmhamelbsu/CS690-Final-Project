@@ -206,15 +206,10 @@ public class ConsoleUI
                 .PageSize(10)
                 .AddChoices(new[]
                 {
-                     "Birthday",
+                    "Birthday",
                     "Anniversary",
                     "Graduation",
-                    "Wedding",
-                    "Baby Shower",
-                    "Retirement",
-                    "Holiday",
                     "Custom",
-
                     "Cancel"
                 }));
 
@@ -253,7 +248,7 @@ public class ConsoleUI
 
         if (!DateTime.TryParseExact(input, "MM/dd/yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime date))
         {
-            ShowError("Please enter a valid date in YYYY-MM-DD format.");
+            ShowError("Please enter a valid date in MM/DD/YYYY format.");
             return;
         }
 
@@ -439,11 +434,15 @@ public class ConsoleUI
             .Border(TableBorder.Rounded)
             .BorderColor(Color.Magenta1)
             .AddColumn("[bold]Gift Idea ID[/]")
-            .AddColumn("[bold]Description[/]");
+            .AddColumn("[bold]Description[/]")
+            .AddColumn("[bold]Bought[/]");
 
         foreach (var idea in selectedPerson.GiftIdeas)
         {
-            table.AddRow(idea.GiftIdeaId.ToString(), idea.Description);
+            table.AddRow(
+                idea.GiftIdeaId.ToString(),
+                idea.Description,
+                idea.Bought ? "Yes" : "No");
         }
 
         AnsiConsole.Write(table);

@@ -1,6 +1,6 @@
 namespace GiftPlanner;
 
-// Represents a gift idea linked to a person
+// Represents a gift idea for a specific person
 public class GiftIdea
 {
     // Unique identifier for the gift idea
@@ -9,16 +9,20 @@ public class GiftIdea
     // Description of the gift idea
     public string Description { get; set; }
 
-    // Constructor initializes the gift idea with an ID and description
-    public GiftIdea(int giftIdeaId, string description)
+    // Indicates whether the gift has been bought
+    public bool Bought { get; set; }
+
+    // Constructor initializes the gift idea
+    public GiftIdea(int giftIdeaId, string description, bool bought = false)
     {
         GiftIdeaId = giftIdeaId;
         Description = description;
+        Bought = bought;
     }
 
     // Returns a formatted string representation of the gift idea
     public override string ToString()
     {
-        return $"{GiftIdeaId}: {Description}";
+        return $"{GiftIdeaId}: {Description} ({(Bought ? "Yes" : "No")})";
     }
 }

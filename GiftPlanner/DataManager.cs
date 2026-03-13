@@ -75,10 +75,7 @@ public class DataManager
         );
 
         // Rewrite gift ideas file
-        File.WriteAllLines(
-            giftIdeasFile,
-            People.SelectMany(p => p.GiftIdeas.Select(g => $"{p.PersonId}|{g.GiftIdeaId}|{g.Description}"))
-        );
+        SaveGiftIdeas();
 
         // Rewrite purchases file
         File.WriteAllLines(
@@ -130,11 +127,11 @@ public class DataManager
 
         int newGiftIdeaId = person.GiftIdeas.Count + 1;
 
-        var giftIdea = new GiftIdea(newGiftIdeaId, description);
+        var giftIdea = new GiftIdea(newGiftIdeaId, description, false);
         person.GiftIdeas.Add(giftIdea);
 
-        // Save gift idea as: PersonId|GiftIdeaId|Description
-        File.AppendAllText(giftIdeasFile, $"{personId}|{giftIdea.GiftIdeaId}|{giftIdea.Description}{Environment.NewLine}");
+        // Save gift idea as: PersonId|GiftIdeaId|Description|Bought
+        File.AppendAllText(giftIdeasFile, $"{personId}|{giftIdea.GiftIdeaId}|{giftIdea.Description}|{giftIdea.Bought}{Environment.NewLine}");
 
         return giftIdea;
     }
@@ -157,9 +154,34 @@ public class DataManager
         person.GiftIdeas.Remove(giftIdea);
 
         // Rewrite gift ideas file
+        SaveGiftIdeas();
+    }
+
+    // A function to mark a matching gift idea as bought for a person
+    private void MarkGiftIdeaAsBoughtIfMatch(int personId, string item)
+    {
+        var person = FindPersonById(personId);
+        if (person == null)
+        {
+            return;
+        }
+
+        var matchingGiftIdea = person.GiftIdeas.FirstOrDefault(g =>
+            g.Description.Equals(item.Trim(), StringComparison.OrdinalIgnoreCase));
+
+        if (matchingGiftIdea != null)
+        {
+            matchingGiftIdea.Bought = true;
+            SaveGiftIdeas();
+        }
+    }
+
+    // A function to rewrite all gift ideas to file
+    private void SaveGiftIdeas()
+    {
         File.WriteAllLines(
             giftIdeasFile,
-            People.SelectMany(p => p.GiftIdeas.Select(g => $"{p.PersonId}|{g.GiftIdeaId}|{g.Description}"))
+            People.SelectMany(p => p.GiftIdeas.Select(g => $"{p.PersonId}|{g.GiftIdeaId}|{g.Description}|{g.Bought}"))
         );
     }
 
@@ -178,7 +200,10 @@ public class DataManager
             if (string.IsNullOrWhiteSpace(line)) continue;
 
             var parts = line.Split('|');
-            if (parts.Length != 3) continue;
+
+            // Support old format: PersonId|GiftIdeaId|Description
+            // Support new format: PersonId|GiftIdeaId|Description|Bought
+            if (parts.Length != 3 && parts.Length != 4) continue;
 
             if (!int.TryParse(parts[0], out int personId)) continue;
             if (!int.TryParse(parts[1], out int giftIdeaId)) continue;
@@ -186,10 +211,16 @@ public class DataManager
             var description = parts[2].Trim();
             if (description == "") continue;
 
+            bool bought = false;
+            if (parts.Length == 4)
+            {
+                bool.TryParse(parts[3], out bought);
+            }
+
             var person = FindPersonById(personId);
             if (person == null) continue;
 
-            person.GiftIdeas.Add(new GiftIdea(giftIdeaId, description));
+            person.GiftIdeas.Add(new GiftIdea(giftIdeaId, description, bought));
         }
     }
 
@@ -210,6 +241,9 @@ public class DataManager
             purchasesFile,
             $"{personId}|{purchase.Item}|{purchase.Amount.ToString(CultureInfo.InvariantCulture)}{Environment.NewLine}"
         );
+
+        // Mark matching gift idea as bought if purchase item matches gift idea description
+        MarkGiftIdeaAsBoughtIfMatch(personId, item);
 
         return purchase;
     }
