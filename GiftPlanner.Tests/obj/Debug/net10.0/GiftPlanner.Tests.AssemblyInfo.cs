@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("GiftPlanner.Tests")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+716096bc91bc2b8839116a52838176487b1b8bff")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+6ae10f4ccd061ba7ac8e9dcc85dd6016bde3d16b")]
 [assembly: System.Reflection.AssemblyProductAttribute("GiftPlanner.Tests")]
 [assembly: System.Reflection.AssemblyTitleAttribute("GiftPlanner.Tests")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
