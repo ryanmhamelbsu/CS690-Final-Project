@@ -2,17 +2,23 @@
 
 ## Gift Planner
 
-Gift Planner is a simple .NET console application for managing gift ideas and purchases for people throughout the year.
+Gift Planner is a simple .NET console application for managing gift ideas, purchases, and important dates for people throughout the year.
 
 ## Version
-v1.0.0
+v2.0.0
 
 ## Features
 - Add and manage people
+- Delete people
 - Store gift ideas for each person
+- Remove gift ideas
+- Automatically track purchased gifts
 - Record purchases
 - Track total spending per person
-- View upcoming reminders
+- Add important dates (birthdays, anniversaries, etc.)
+- View upcoming important dates
+- Receive reminders for important dates within 7 days
+- Data automatically persists between sessions
 
 ## Download and Run
 
@@ -32,7 +38,15 @@ GiftPlanner.zip
 
 4. Extract the ZIP file.
 
-5. Open a terminal in the extracted folder and run:
+5. In the extracted folder's address bar type cmd and hit enter.
+
+6. Run the following command first to activate emoji's:
+
+```bash
+chcp 65001
+```
+
+7. In CMD run:
 
 ```bash
 dotnet GiftPlanner.dll
@@ -46,8 +60,26 @@ If you prefer to run the project from the source code:
 dotnet run --project GiftPlanner
 ```
 
+## Running Tests
+
+Automated tests are included using **xUnit**.
+
+To run the tests from the repository root:
+
+```bash
+dotnet test
+```
+
+These tests verify core application behavior such as:
+
+- Adding people
+- Deleting people
+- Removing gift ideas
+
 ## Documentation
 
-Full documentation is available in the project Wiki.
+Full documentation is available in the project Wiki, including:
 
-
+- User Documentation
+- Development Documentation
+- Deployment Documentation
