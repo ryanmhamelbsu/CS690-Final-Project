@@ -6,6 +6,7 @@ public class DataManagerTests
 {
     [Fact]
     public void AddPerson_ShouldIncreasePersonCount()
+    //Checks that when a new person is added, the number of people in the system increases.
     {
         var manager = new DataManager();
         int startCount = manager.People.Count;
@@ -18,6 +19,7 @@ public class DataManagerTests
 
     [Fact]
     public void DeletePerson_ShouldRemovePerson()
+    //Checks that deleting a person removes them from the system.
     {
         var manager = new DataManager();
 
@@ -33,6 +35,7 @@ public class DataManagerTests
 
     [Fact]
     public void RemoveGiftIdea_ShouldRemoveIdeaFromPerson()
+    //Checks that removing a gift idea actually removes it from the selected person’s list.
     {
         var manager = new DataManager();
 

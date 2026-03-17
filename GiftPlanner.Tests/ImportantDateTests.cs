@@ -6,6 +6,7 @@ public class ImportantDateTests
 {
     [Fact]
     public void ImportantDate_Constructor_ShouldSetTypeAndDate()
+    //Checks that the constructor correctly stores the event type and date
     {
         var date = new DateTime(1998, 2, 22);
         var importantDate = new ImportantDate("Birthday", date);
@@ -16,6 +17,7 @@ public class ImportantDateTests
 
     [Fact]
     public void ImportantDate_ShouldStoreCorrectDate()
+    //Checks that the date values are stored correctly
     {
         var importantDate = new ImportantDate("Anniversary", new DateTime(2020, 6, 10));
 
@@ -25,6 +27,7 @@ public class ImportantDateTests
 
     [Fact]
     public void ImportantDate_ToString_ShouldReturnReadableFormat()
+    //Checks that the string representation includes the event type
     {
         var importantDate = new ImportantDate("Birthday", new DateTime(1998, 2, 22));
 
