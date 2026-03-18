@@ -2,10 +2,10 @@
 
 ## Gift Planner
 
-Gift Planner is a simple .NET console application for managing gift ideas, purchases, and important dates for people throughout the year.
+Gift Planner is a .NET console application for managing gift ideas, purchases, and important dates for people throughout the year.
 
 ## Version
-v2.0.0
+v3.0.0
 
 ## Features
 - Add and manage people
@@ -14,7 +14,7 @@ v2.0.0
 - Remove gift ideas
 - Automatically track purchased gifts
 - Record purchases
-- Track total spending per person
+- Track and display total spending per person
 - Add important dates (birthdays, anniversaries, etc.)
 - View upcoming important dates
 - Receive reminders for important dates within 7 days
@@ -70,11 +70,21 @@ To run the tests from the repository root:
 dotnet test
 ```
 
-These tests verify core application behavior such as:
+These tests verify core application behavior across multiple modules:
 
-- Adding people
-- Deleting people
-- Removing gift ideas
+- DataManager (core logic and data handling)
+- Person (domain model validation)
+- GiftIdea (gift idea behavior)
+- ImportantDate (date handling and reminders)
+
+## Project Structure
+
+The project is organized into two main components:
+
+- `GiftPlanner` – Main application
+- `GiftPlanner.Tests` – Automated test project
+
+This structure separates application logic from testing and improves maintainability.
 
 ## Documentation
 
