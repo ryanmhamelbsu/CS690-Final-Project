@@ -1,6 +1,6 @@
 namespace GiftPlanner;
 
-// Represents a purchase recorded for a person
+// Handles purchase tracking and cost information
 public class Purchase
 {
     // Description of the item purchased
