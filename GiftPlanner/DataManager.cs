@@ -5,7 +5,7 @@ using System.IO; //https://learn.microsoft.com/en-us/dotnet/standard/io/
 using System.Linq; //https://learn.microsoft.com/en-us/dotnet/csharp/linq/
 
 namespace GiftPlanner;
-
+// Handles data storage and application logic
 public class DataManager
 {
     // Code to store file paths in one consistent location

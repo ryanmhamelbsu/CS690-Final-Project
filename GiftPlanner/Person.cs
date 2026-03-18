@@ -2,7 +2,7 @@ using System.Collections.Generic;
 
 namespace GiftPlanner;
 
-// Represents a person in the gift planning system
+//Handles data related to a person
 public class Person
 {
     // Unique identifier for the person

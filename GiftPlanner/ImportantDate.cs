@@ -2,7 +2,7 @@ using System;
 
 namespace GiftPlanner;
 
-// Represents an important date associated with a person
+// Handles important dates and date releated logic
 public class ImportantDate
 {
     // The type of important date, such as Birthday or Anniversary

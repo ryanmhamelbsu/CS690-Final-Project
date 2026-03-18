@@ -1,6 +1,6 @@
 namespace GiftPlanner;
 
-// Represents a gift idea for a specific person
+// Handles gift ideas releated to a person
 public class GiftIdea
 {
     // Unique identifier for the gift idea
